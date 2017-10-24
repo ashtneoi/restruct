@@ -12,11 +12,12 @@ class Restructor(object):
         self.rules[target] = Rule(target, prereqs, recipe)
 
     def do(self, target):
-        for rule in self.rules:
+        for rule in self.rules.values():
             for i, prereq in enumerate(rule.prereqs):
-                if isinstance(prereqe, str):
+                if isinstance(prereq, str):
                     x = self.rules.get(prereq, None)
                     if x is not None:
+                        print(x)
                         rule.prereqs[i] = x
         raise Exception("lazy cat")
 
@@ -28,12 +29,7 @@ class Rule(object):
         self.recipe = recipe
 
     def __repr__(self):
-        return "{} -> {}".format(
-            repr(tuple(
-                (p if isinstance(p, str) else p.target) for p in self.prereqs
-            )),
-            self.target,
-        )
+        return "{} -> {}".format(repr(self.prereqs), self.target)
 
 
 GCC1 = 'gcc -std=c99 -pedantic -Wall -Wextra -Werror'
@@ -42,4 +38,8 @@ GCC1 = 'gcc -std=c99 -pedantic -Wall -Wextra -Werror'
 r = Restructor()
 r.add('foo', ('foo.c', 'foo.h'), GCC1 + ' -o foo foo.c')
 r.add('foo.h', ('foo.h.in',), 'cp foo.h.in foo.h')
+print(r)
+try:
+    r.do('hey')
+except: pass
 print(r)
