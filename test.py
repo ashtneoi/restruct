@@ -5,10 +5,11 @@ class Restructor(object):
     def __init__(self):
         self.rules = {}
 
-    def add(self, target, prereqs, recipe):
+    def add(self, target, prereqs, recipe=None):
+        """Need an indirect rule? Just give an empty recipe."""
+        if target in self.rules:
+            raise Exception("Target '{}' already has a rule".format(target))
         self.rules[target] = Rule(target, prereqs, recipe)
-
-    #def add_indirect(self, target, prereqs, recipe):
 
     def get_order(self, target):
         for rule in self.rules.values():
@@ -21,33 +22,35 @@ class Restructor(object):
 
         start = self.rules[target]
         order = []
-        queue = [start]
+        frontier = {start}
         visited = set()
-        while queue:
-            queue2 = []
-            for rule in queue:
+        while frontier:
+            next_frontier = set()
+            for rule in frontier:
+                print(" " + repr(rule))
                 if isinstance(rule, str):
-                    continue
-                if rule not in visited:
                     order.append(rule)
-                    queue2.extend(rule.prereqs)
-                elif rule is start:
-                    raise Exception("Prereq cycle")
-            visited.update(queue)
-            queue = queue2
+                else:
+                    if rule not in visited:
+                        order.append(rule)
+                        next_frontier.update(rule.prereqs)
+                    elif rule is start:
+                        raise Exception("Prereq cycle")
+            visited.update(frontier)
+            frontier = next_frontier
         order.reverse()
 
         return order
 
 
 class Rule(object):
-    def __init__(self, target, prereqs, recipe):
+    def __init__(self, target, prereqs, recipe=None):
         self.target = target
         self.prereqs = list(prereqs)
         self.recipe = recipe
 
     def __repr__(self):
-        return repr(self.target)
+        return "<" + repr(self.target) + ">"
 
     def __str__(self):
         return "{} -> {}".format(repr(self.prereqs), repr(self.target))
@@ -57,8 +60,6 @@ GCC1 = 'gcc -std=c99 -pedantic -Wall -Wextra -Werror'
 
 
 r = Restructor()
-r.add('foo', ('foo.c', 'foo.h'), GCC1 + ' -o foo foo.c')
-r.add('foo.h', ('foo.h.in',), 'cp foo.h.in foo.h')
-r.add('foo.c', ('foo.h',), '')
-#r.add('foo.h.in', ('foo',), 'echo oops')
-print(r.get_order('foo'))
+r.add('c', ('b', 'a'))
+r.add('b', ('a',))
+print(r.get_order('c'))
