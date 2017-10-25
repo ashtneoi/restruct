@@ -19,7 +19,6 @@ class Restructor(object):
                     if x is not None:
                         rule.prereqs[i] = x
 
-
         start = self.rules[target]
         order = {}
         frontier = {start}
