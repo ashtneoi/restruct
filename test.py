@@ -2,7 +2,7 @@
 
 
 class Restructor(object):
-    def __init__(self):
+    def __init__(self, shell='bash'):
         self.rules = {}
 
     def add(self, target, prereqs, recipe=None):
