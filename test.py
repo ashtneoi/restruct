@@ -21,24 +21,29 @@ class Restructor(object):
 
 
         start = self.rules[target]
-        order = []
+        order = {}
         frontier = {start}
         visited = set()
+        d = 0
         while frontier:
             next_frontier = set()
             for rule in frontier:
                 print(" " + repr(rule))
                 if isinstance(rule, str):
-                    order.append(rule)
+                    order[rule] = d
                 else:
                     if rule not in visited:
-                        order.append(rule)
+                        order[rule] = d
                         next_frontier.update(rule.prereqs)
                     elif rule is start:
                         raise Exception("Prereq cycle")
             visited.update(frontier)
             frontier = next_frontier
-        order.reverse()
+            d += 1
+        order = [
+            x[0]
+            for x in sorted(order.items(), key=(lambda x: x[1]), reverse=True)
+        ]
 
         return order
 
