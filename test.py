@@ -11,7 +11,7 @@ class Restructor(object):
         self.rules = {}
 
     def add(self, target, prereqs, recipe=None):
-        """Need an indirect rule? Just give an empty recipe."""
+        """Need an indirect rule? Just omit the recipe."""
         if target in self.rules:
             raise Exception("Target '{}' already has a rule".format(target))
         self.rules[target] = Rule(target, prereqs, recipe)
