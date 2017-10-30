@@ -78,6 +78,9 @@ class Node(object):
     def __hash__(self):
         return hash(self.target)
 
+    def __eq__(self, other):
+        return self.target == other.target
+
 
 class Rule(Node):
     def __init__(self, target, prereqs, recipe=None):
