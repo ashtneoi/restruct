@@ -40,13 +40,9 @@ class Restructor(object):
         d = 0
         while frontier:
             next_frontier = set()
-            for rule in frontier:
-                print(" " + repr(rule))
-                if rule not in visited:
-                    order[rule] = d
-                    next_frontier.update(rule.prereqs)
-                elif rule is start:
-                    raise Exception("Prereq cycle")
+            for node in frontier:
+                order[node] = max(d, order.get(node, -1))
+                next_frontier.update(node.prereqs)
             visited.update(frontier)
             frontier = next_frontier
             d += 1
