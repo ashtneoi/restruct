@@ -4,6 +4,7 @@
 import os
 from datetime import datetime
 from math import inf
+from subprocess import run
 
 
 class Restructor(object):
@@ -76,9 +77,8 @@ class Restructor(object):
 
         todo = reversed(todo_rev)
 
-        print(tuple(todo))
-        #for rule in todo:
-            #rule.do()
+        for rule in todo:
+            rule.do()
 
 
 class Node(object):
@@ -104,6 +104,9 @@ class Rule(Node):
     def __str__(self):
         return "{} -> {}".format(repr(self.prereqs), repr(self.target))
 
+    def do(self):
+        run(self.recipe, check=True, shell=True)
+
 
 class Leaf(Node):
     prereqs = ()
@@ -115,12 +118,14 @@ class Leaf(Node):
     def __repr__(self):
         return "<" + repr(self.target) + ">"
 
+    def do(self):
+        raise Exception("Don't know how to make {}".format(self.target))
 
 
 def test_stat():
     r = Restructor()
-    r.add('c', ('b', 'a'))
-    r.add('b', ('a',))
+    r.add('c', ('b', 'a'), 'touch c')
+    r.add('b', ('a',), 'touch b')
     print('a:', r.get_order('a'))
     print('b:', r.get_order('b'))
     print('c:', r.get_order('c'))
