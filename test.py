@@ -62,14 +62,14 @@ class Restructor(object):
 
         for rule in order:
             rule.stamp = self.get_stamp(rule)
-            rule.new_stamp = max(rule.stamp, max(
+            rule.thresh = max(rule.stamp, max(
                 (prereq.stamp for prereq in rule.prereqs), default=-inf
             ))
-            print(rule.target, rule.stamp, rule.new_stamp)
+            print(rule.target, rule.stamp, rule.thresh)
         todo_rev = []
         order[-1].need = True
         for rule in reversed(order):
-            if rule.need and rule.stamp < rule.new_stamp:
+            if rule.need and (rule.stamp < rule.thresh or rule.stamp == -inf):
                 todo_rev.append(rule)
                 for prereq in rule.prereqs:
                     prereq.need = True
