@@ -60,17 +60,30 @@ class Restructor(object):
         order = self.get_order(target)
         now = datetime.now().timestamp()
 
-        dirty = set()
         for rule in order:
-            if rule in dirty or any(
-                    self.get_stamp(rule) < self.get_stamp(prereq)
-                    for prereq in rule.prereqs
-            ):
-                print(rule)
-                dirty.update(rule.products)
+            rule.stamp = self.get_stamp(rule)
+            rule.new_stamp = max(rule.stamp, max(
+                (prereq.stamp for prereq in rule.prereqs), default=-inf
+            ))
+            print(rule.target, rule.stamp, rule.new_stamp)
+        todo_rev = []
+        order[-1].need = True
+        for rule in reversed(order):
+            if rule.need and rule.stamp < rule.new_stamp:
+                todo_rev.append(rule)
+                for prereq in rule.prereqs:
+                    prereq.need = True
+
+        todo = reversed(todo_rev)
+
+        print(tuple(todo))
+        #for rule in todo:
+            #rule.do()
 
 
 class Node(object):
+    need = False
+
     def __hash__(self):
         return hash(self.target)
 
@@ -103,19 +116,14 @@ class Leaf(Node):
         return "<" + repr(self.target) + ">"
 
 
-GCC1 = 'gcc -std=c99 -pedantic -Wall -Wextra -Werror'
-
-
-def test_order():
-    r = Restructor()
-    r.add('c', ('b', 'a'))
-    r.add('b', ('a',))
-    print(r.get_order('c'))
 
 def test_stat():
     r = Restructor()
     r.add('c', ('b', 'a'))
     r.add('b', ('a',))
+    print('a:', r.get_order('a'))
+    print('b:', r.get_order('b'))
+    print('c:', r.get_order('c'))
     r.do('c')
 
 test_stat()
